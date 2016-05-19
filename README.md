@@ -12,7 +12,9 @@ Luís Gomes adapted the code for usage as a Python module and refactored the cod
 The remainder of this file is adapted from [the webpage where the original code is available](http://nlp.ffzg.hr/resources/tools/stemmer-for-croatian/):
 
 
-Ivan Pandžić and Nikola Ljubešić have built a simple rule-based stemmer for Croatian (this is actually a refinement / redesign of the stemmer presented in the InFuture 2007 paper titled "Retrieving Information in Croatian: building a simple and effcient rule-based stemmer") which they published under the GNU Lesser General Public License.
+Ivan Pandžić and Nikola Ljubešić have created this simple rule-based stemmer for Croatian which they published under the GNU Lesser General Public License.
+
+This stemmer is actually a refinement / redesign of the stemmer presented in the InFuture 2007 paper titled "Retrieving Information in Croatian: building a simple and effcient rule-based stemmer".
 
 It performs a series of transformations (defined in `transformations.txt`) that take care of morphonological changes and a series of rules (defined in `rules.txt`) that remove the suffixes. The stemmer in general works best on adjectives and nouns since, while working on it, they had information retrieval tasks in mind.
 
