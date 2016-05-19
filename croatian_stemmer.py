@@ -22,39 +22,39 @@ stop=set(['biti','jesam','budem','sam','jesi','budeš','si','jesmo','budemo','sm
 
 
 def istakniSlogotvornoR(niz):
-	return re.sub(r'(^|[^aeiou])r($|[^aeiou])',r'\1R\2',niz)
+    return re.sub(r'(^|[^aeiou])r($|[^aeiou])',r'\1R\2',niz)
 
 def imaSamoglasnik(niz):
     if re.search(r'[aeiouR]',istakniSlogotvornoR(niz)) is None:
-    	return False
+        return False
     else:
-    	return True
+        return True
 
 def transformiraj(pojavnica):
-	for trazi,zamijeni in transformacije:
-		if pojavnica.endswith(trazi):
-			return pojavnica[:-len(trazi)]+zamijeni
-	return pojavnica
+    for trazi,zamijeni in transformacije:
+        if pojavnica.endswith(trazi):
+            return pojavnica[:-len(trazi)]+zamijeni
+    return pojavnica
 
 def korjenuj(pojavnica):
-	for pravilo in pravila:
-		dioba=pravilo.match(pojavnica)
-		if dioba is not None:
-			if imaSamoglasnik(dioba.group(1)) and len(dioba.group(1))>1:
-				return dioba.group(1)
-	return pojavnica
-	
+    for pravilo in pravila:
+        dioba=pravilo.match(pojavnica)
+        if dioba is not None:
+            if imaSamoglasnik(dioba.group(1)) and len(dioba.group(1))>1:
+                return dioba.group(1)
+    return pojavnica
+
 if __name__=='__main__':
-	if len(sys.argv)!=3:
-		print 'Usage: python Croatian_stemmer.py input_file output_file'
-		print 'input_file should be an utf8-encoded text file which is then tokenized, stemmed and written in the output_file in a tab-separated fashion.'
-		sys.exit(1)
-	output_file=open(sys.argv[2],'w')
-	pravila=[re.compile(r'^('+osnova+')('+nastavak+r')$') for osnova, nastavak in [e.decode('utf8').strip().split(' ') for e in open('rules.txt')]]
-	transformacije=[e.decode('utf8').strip().split('\t') for e in open('transformations.txt')]
-	for token in re.findall(r'\w+',open(sys.argv[1]).read().decode('utf8'),re.UNICODE):
-		if token.lower() in stop:
-			output_file.write((token+'\t'+token.lower()+'\n').encode('utf8'))
-			continue
-		output_file.write((token+'\t'+korjenuj(transformiraj(token.lower()))+'\n').encode('utf8'))
-	output_file.close()
+    if len(sys.argv)!=3:
+        print 'Usage: python Croatian_stemmer.py input_file output_file'
+        print 'input_file should be an utf8-encoded text file which is then tokenized, stemmed and written in the output_file in a tab-separated fashion.'
+        sys.exit(1)
+    output_file=open(sys.argv[2],'w')
+    pravila=[re.compile(r'^('+osnova+')('+nastavak+r')$') for osnova, nastavak in [e.decode('utf8').strip().split(' ') for e in open('rules.txt')]]
+    transformacije=[e.decode('utf8').strip().split('\t') for e in open('transformations.txt')]
+    for token in re.findall(r'\w+',open(sys.argv[1]).read().decode('utf8'),re.UNICODE):
+        if token.lower() in stop:
+            output_file.write((token+'\t'+token.lower()+'\n').encode('utf8'))
+            continue
+        output_file.write((token+'\t'+korjenuj(transformiraj(token.lower()))+'\n').encode('utf8'))
+    output_file.close()
