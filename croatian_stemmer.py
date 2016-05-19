@@ -1,7 +1,12 @@
-#-*-coding:utf-8-*-
+#! /usr/bin/env python3
 #
 #    Simple stemmer for Croatian v0.1
 #    Copyright 2012 Nikola Ljubešić and Ivan Pandžić
+#
+#    Modifications by Luís Gomes <luismsgomes@gmail.com> (May 2016) to make
+#     this stemmer usable as a Python module:
+#     * function hr_stem(word) => stem
+#     * initialization of rules and transformations upon module import
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published
@@ -16,9 +21,103 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from pathlib import Path
 import re
 import sys
-stop=set(['biti','jesam','budem','sam','jesi','budeš','si','jesmo','budemo','smo','jeste','budete','ste','jesu','budu','su','bih','bijah','bjeh','bijaše','bi','bje','bješe','bijasmo','bismo','bjesmo','bijaste','biste','bjeste','bijahu','biste','bjeste','bijahu','bi','biše','bjehu','bješe','bio','bili','budimo','budite','bila','bilo','bile','ću','ćeš','će','ćemo','ćete','želim','želiš','želi','želimo','želite','žele','moram','moraš','mora','moramo','morate','moraju','trebam','trebaš','treba','trebamo','trebate','trebaju','mogu','možeš','može','možemo','možete'])
+
+
+def pkg_fname(basename):
+    return str(Path(__file__).with_name(basename))
+
+def read_rules(fname):
+    with open(fname) as lines:
+        for line in lines:
+            osnova, nastavak = line.strip().split(' ')
+            yield re.compile(r'^('+osnova+')('+nastavak+r')$')
+
+def read_transformations(fname):
+    with open(fname) as lines:
+        for line in lines:
+            yield line.strip().split('\t')
+
+stop = {
+    'biti',
+    'jesam',
+    'budem',
+    'sam',
+    'jesi',
+    'budeš',
+    'si',
+    'jesmo',
+    'budemo',
+    'smo',
+    'jeste',
+    'budete',
+    'ste',
+    'jesu',
+    'budu',
+    'su',
+    'bih',
+    'bijah',
+    'bjeh',
+    'bijaše',
+    'bi',
+    'bje',
+    'bješe',
+    'bijasmo',
+    'bismo',
+    'bjesmo',
+    'bijaste',
+    'biste',
+    'bjeste',
+    'bijahu',
+    'biste',
+    'bjeste',
+    'bijahu',
+    'bi',
+    'biše',
+    'bjehu',
+    'bješe',
+    'bio',
+    'bili',
+    'budimo',
+    'budite',
+    'bila',
+    'bilo',
+    'bile',
+    'ću',
+    'ćeš',
+    'će',
+    'ćemo',
+    'ćete',
+    'želim',
+    'želiš',
+    'želi',
+    'želimo',
+    'želite',
+    'žele',
+    'moram',
+    'moraš',
+    'mora',
+    'moramo',
+    'morate',
+    'moraju',
+    'trebam',
+    'trebaš',
+    'treba',
+    'trebamo',
+    'trebate',
+    'trebaju',
+    'mogu',
+    'možeš',
+    'može',
+    'možemo',
+    'možete'
+}
+
+rules = list(read_rules(pkg_fname("rules.txt")))
+
+transformations = list(read_transformations(pkg_fname("transformations.txt")))
 
 
 def istakniSlogotvornoR(niz):
@@ -31,30 +130,33 @@ def imaSamoglasnik(niz):
         return True
 
 def transformiraj(pojavnica):
-    for trazi,zamijeni in transformacije:
+    for trazi,zamijeni in transformations:
         if pojavnica.endswith(trazi):
             return pojavnica[:-len(trazi)]+zamijeni
     return pojavnica
 
 def korjenuj(pojavnica):
-    for pravilo in pravila:
+    for pravilo in rules:
         dioba=pravilo.match(pojavnica)
         if dioba is not None:
             if imaSamoglasnik(dioba.group(1)) and len(dioba.group(1))>1:
                 return dioba.group(1)
     return pojavnica
 
-if __name__=='__main__':
-    if len(sys.argv)!=3:
-        print 'Usage: python Croatian_stemmer.py input_file output_file'
-        print 'input_file should be an utf8-encoded text file which is then tokenized, stemmed and written in the output_file in a tab-separated fashion.'
-        sys.exit(1)
-    output_file=open(sys.argv[2],'w')
-    pravila=[re.compile(r'^('+osnova+')('+nastavak+r')$') for osnova, nastavak in [e.decode('utf8').strip().split(' ') for e in open('rules.txt')]]
-    transformacije=[e.decode('utf8').strip().split('\t') for e in open('transformations.txt')]
-    for token in re.findall(r'\w+',open(sys.argv[1]).read().decode('utf8'),re.UNICODE):
-        if token.lower() in stop:
-            output_file.write((token+'\t'+token.lower()+'\n').encode('utf8'))
-            continue
-        output_file.write((token+'\t'+korjenuj(transformiraj(token.lower()))+'\n').encode('utf8'))
-    output_file.close()
+def hr_stem(word):
+    if not re.match(r'^\w+$', word) or word.lower() in stop:
+        return word
+    stem = korjenuj(transformiraj(word.lower()))
+    if word.isupper():
+        return stem.upper()
+    if stem.istitle():
+        return stem.title()
+    return stem
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) != 1:
+        sys.exit('{} takes no arguments'.format(sys.argv[0]))
+    for line in sys.stdin:
+        print(*[hr_stem(word) for word in line.split()])
