@@ -9,8 +9,7 @@ Luís Gomes adapted the code for usage as a Python module and refactored the cod
 - program reads tokenized sentences from stdin and writes stemmed sentences to stdout (line-buffered)
 
 
-The remainder of this file is adapted from [the webpage where the original code is available](http://nlp.ffzg.hr/resources/tools/stemmer-for-croatian/):
-
+The following text has been adapted from [the webpage where the original code is available](http://nlp.ffzg.hr/resources/tools/stemmer-for-croatian/):
 
 Ivan Pandžić and Nikola Ljubešić have created this simple rule-based stemmer for Croatian which they published under the GNU Lesser General Public License.
 
