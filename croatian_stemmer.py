@@ -28,8 +28,8 @@ import sys
 __version__ = '0.1.1'
 
 
-def pkg_fname(basename):
-    return str(Path(__file__).with_name(basename))
+def pkg_fname(fname):
+    return str(Path(__file__).parent.joinpath("croatian_stemmer", fname))
 
 def read_rules(fname):
     with open(fname) as lines:
