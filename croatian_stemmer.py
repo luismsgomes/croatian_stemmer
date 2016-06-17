@@ -1,6 +1,5 @@
-#! /usr/bin/env python3
 #
-#    Simple stemmer for Croatian v0.1
+#    Simple stemmer for Croatian
 #    Copyright 2012 Nikola Ljubešić and Ivan Pandžić
 #
 #    Modifications by Luís Gomes <luismsgomes@gmail.com> (May 2016) to make
@@ -24,6 +23,9 @@
 from pathlib import Path
 import re
 import sys
+
+
+__version__ = '0.1.1'
 
 
 def pkg_fname(basename):
@@ -154,9 +156,12 @@ def hr_stem(word):
     return stem
 
 
-if __name__ == '__main__':
-    import sys
+def main():
     if len(sys.argv) != 1:
         sys.exit('{} takes no arguments'.format(sys.argv[0]))
     for line in sys.stdin:
         print(*[hr_stem(word) for word in line.split()])
+
+
+if __name__ == '__main__':
+    main()
